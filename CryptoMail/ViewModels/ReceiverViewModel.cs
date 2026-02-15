@@ -66,6 +66,11 @@ public sealed class ReceiverViewModel : BaseViewModel
         {
             IsBusy = true;
 
+            if (!_keyService.AllKeysExist(KeyPaths))
+            {
+                throw new FileNotFoundException("Keys not found. Generate keys first.");
+            }
+
             var envelopeJson = await _emailService.DownloadLatestAttachmentAsync(Settings, Settings.SubjectFilter);
             var envelope = _storageService.ReadEnvelopeFromJson(envelopeJson);
             _storageService.SaveEnvelope(AppContext.BaseDirectory, envelope);
