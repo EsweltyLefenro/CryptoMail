@@ -1,12 +1,28 @@
-﻿<Window x:Class="CryptoMail.MainWindow"
+<Window x:Class="CryptoMail.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:CryptoMail"
+        xmlns:views="clr-namespace:CryptoMail.Views"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
+        Title="CryptoMail" Height="700" Width="980">
+    <Grid Margin="8">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="3*"/>
+            <RowDefinition Height="2*"/>
+        </Grid.RowDefinitions>
 
+        <TabControl Grid.Row="0">
+            <TabItem Header="Sender">
+                <views:SenderView DataContext="{Binding Sender}"/>
+            </TabItem>
+            <TabItem Header="Receiver">
+                <views:ReceiverView DataContext="{Binding Receiver}"/>
+            </TabItem>
+        </TabControl>
+
+        <GroupBox Header="Common log" Grid.Row="1" Margin="0 10 0 0">
+            <ListBox ItemsSource="{Binding Log.Lines}"/>
+        </GroupBox>
     </Grid>
 </Window>
