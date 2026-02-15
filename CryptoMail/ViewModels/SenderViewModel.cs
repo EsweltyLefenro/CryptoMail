@@ -1,6 +1,7 @@
 using System.Text.Json;
 using CryptoMail.Models;
 using CryptoMail.Services;
+using System.IO;
 
 namespace CryptoMail.ViewModels;
 
@@ -108,6 +109,11 @@ public sealed class SenderViewModel : BaseViewModel
             if (string.IsNullOrWhiteSpace(SelectedFilePath) || !File.Exists(SelectedFilePath))
             {
                 throw new FileNotFoundException("Select a valid file first.");
+            }
+
+            if (!_keyService.AllKeysExist(KeyPaths))
+            {
+                throw new FileNotFoundException("Keys not found. Generate keys first.");
             }
 
             var senderPrivatePem = _keyService.LoadPem(KeyPaths.SenderPrivatePath);

@@ -2,6 +2,7 @@ using System.IO.Compression;
 using System.Text;
 using System.Text.Json;
 using CryptoMail.Models;
+using System.IO;
 
 namespace CryptoMail.Services;
 
