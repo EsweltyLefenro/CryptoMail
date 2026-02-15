@@ -110,6 +110,11 @@ public sealed class SenderViewModel : BaseViewModel
                 throw new FileNotFoundException("Select a valid file first.");
             }
 
+            if (!_keyService.AllKeysExist(KeyPaths))
+            {
+                throw new FileNotFoundException("Keys not found. Generate keys first.");
+            }
+
             var senderPrivatePem = _keyService.LoadPem(KeyPaths.SenderPrivatePath);
             var senderPublicPem = _keyService.LoadPem(KeyPaths.SenderPublicPath);
             var recipientPublicPem = _keyService.LoadPem(KeyPaths.RecipientPublicPath);
