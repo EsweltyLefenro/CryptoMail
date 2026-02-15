@@ -1,0 +1,40 @@
+<UserControl x:Class="CryptoMail.Views.SenderView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="12">
+            <TextBlock Text="Sender" FontSize="18" FontWeight="Bold" Margin="0 0 0 12"/>
+
+            <TextBlock Text="File path"/>
+            <DockPanel Margin="0 4 0 8">
+                <Button Content="Browse" Width="90" DockPanel.Dock="Right" Command="{Binding ChooseFileCommand}" Margin="8 0 0 0"/>
+                <TextBox Text="{Binding SelectedFilePath, UpdateSourceTrigger=PropertyChanged}"/>
+            </DockPanel>
+
+            <Button Content="Generate sender/recipient keys" Command="{Binding GenerateKeysCommand}" Margin="0 0 0 12"/>
+
+            <TextBlock Text="SMTP host"/>
+            <TextBox Text="{Binding Settings.SmtpHost, UpdateSourceTrigger=PropertyChanged}" Margin="0 4 0 8"/>
+            <TextBlock Text="SMTP port"/>
+            <TextBox Text="{Binding Settings.SmtpPort, UpdateSourceTrigger=PropertyChanged}" Margin="0 4 0 8"/>
+            <TextBlock Text="Login"/>
+            <TextBox Text="{Binding Settings.Login, UpdateSourceTrigger=PropertyChanged}" Margin="0 4 0 8"/>
+            <TextBlock Text="Password"/>
+            <PasswordBox x:Name="SenderPasswordBox" PasswordChanged="SenderPasswordBox_OnPasswordChanged" Margin="0 4 0 8"/>
+            <TextBlock Text="From"/>
+            <TextBox Text="{Binding Settings.FromAddress, UpdateSourceTrigger=PropertyChanged}" Margin="0 4 0 8"/>
+            <TextBlock Text="To"/>
+            <TextBox Text="{Binding RecipientEmail, UpdateSourceTrigger=PropertyChanged}" Margin="0 4 0 8"/>
+            <TextBlock Text="Subject"/>
+            <TextBox Text="{Binding Subject, UpdateSourceTrigger=PropertyChanged}" Margin="0 4 0 8"/>
+
+            <Button Content="Send" Command="{Binding SendCommand}" Margin="0 8 0 8" Height="34"/>
+
+            <TextBlock Text="Status:" FontWeight="Bold"/>
+            <TextBlock Text="{Binding StatusText}" TextWrapping="Wrap"/>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>
