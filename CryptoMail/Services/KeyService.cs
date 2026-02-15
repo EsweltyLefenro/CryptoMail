@@ -1,7 +1,7 @@
+using System.IO;
 using System.Security.Cryptography;
 using CryptoMail.Models;
 
-using System.IO;
 namespace CryptoMail.Services;
 
 public sealed class KeyService

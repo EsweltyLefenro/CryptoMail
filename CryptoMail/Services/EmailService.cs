@@ -1,11 +1,11 @@
-using MailKit;
-using MailKit.Net.Imap;
-using MailKit.Net.Smtp;
-using MimeKit;
-using CryptoMail.Models;
-
 using System.IO;
 using System.Linq;
+using CryptoMail.Models;
+using MailKit.Net.Imap;
+using MailKit.Net.Smtp;
+using MailKit;
+using MimeKit;
+
 namespace CryptoMail.Services;
 
 public sealed class EmailService

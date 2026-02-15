@@ -1,7 +1,7 @@
+using System.IO;
 using System.Text.Json;
 using CryptoMail.Models;
 
-using System.IO;
 namespace CryptoMail.Services;
 
 public sealed class StorageService

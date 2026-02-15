@@ -1,8 +1,8 @@
+using System.IO;
 using System.Text.Json;
 using CryptoMail.Models;
 using CryptoMail.Services;
 
-using System.IO;
 namespace CryptoMail.ViewModels;
 
 public sealed class SenderViewModel : BaseViewModel

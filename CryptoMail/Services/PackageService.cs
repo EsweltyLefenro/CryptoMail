@@ -1,9 +1,9 @@
 using System.IO.Compression;
-using System.Text;
+using System.IO;
 using System.Text.Json;
+using System.Text;
 using CryptoMail.Models;
 
-using System.IO;
 namespace CryptoMail.Services;
 
 public sealed class PackageService
