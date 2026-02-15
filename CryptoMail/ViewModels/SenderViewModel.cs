@@ -1,6 +1,7 @@
 using System.Text.Json;
 using CryptoMail.Models;
 using CryptoMail.Services;
+using System.IO;
 
 namespace CryptoMail.ViewModels;
 

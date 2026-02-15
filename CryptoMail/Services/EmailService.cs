@@ -3,6 +3,8 @@ using MailKit.Net.Imap;
 using MailKit.Net.Smtp;
 using MimeKit;
 using CryptoMail.Models;
+using System.IO;
+using System.Linq;
 
 namespace CryptoMail.Services;
 
