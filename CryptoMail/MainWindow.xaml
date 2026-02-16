@@ -3,26 +3,53 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:CryptoMail.ViewModels"
         xmlns:views="clr-namespace:CryptoMail.Views"
         mc:Ignorable="d"
-        Title="CryptoMail" Height="700" Width="980">
-    <Grid Margin="8">
+        Title="CryptoMail" Height="750" Width="1100"
+        Background="#F5F6F7" FontFamily="Segoe UI">
+    
+    <Window.DataContext>
+        <vm:MainViewModel />
+    </Window.DataContext>
+
+    <Grid Margin="15">
         <Grid.RowDefinitions>
-            <RowDefinition Height="3*"/>
-            <RowDefinition Height="2*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="220"/>
         </Grid.RowDefinitions>
 
-        <TabControl Grid.Row="0">
-            <TabItem Header="Sender">
-                <views:SenderView DataContext="{Binding Sender}"/>
+        <TabControl Grid.Row="0" BorderThickness="0" Background="Transparent">
+            <TabItem Header="ОТПРАВИТЕЛЬ" Padding="20,10">
+                <views:SenderView DataContext="{Binding Sender}" Loaded="SenderView_Loaded"/>
             </TabItem>
-            <TabItem Header="Receiver">
+            <TabItem Header="ПОЛУЧАТЕЛЬ" Padding="20,10">
                 <views:ReceiverView DataContext="{Binding Receiver}"/>
+            </TabItem>
+            <TabItem Header="КЛЮЧИ" Padding="20,10">
+                <views:KeysView DataContext="{Binding Keys}"/>
             </TabItem>
         </TabControl>
 
-        <GroupBox Header="Common log" Grid.Row="1" Margin="0 10 0 0">
-            <ListBox ItemsSource="{Binding Log.Lines}"/>
+        <GroupBox Grid.Row="1" Margin="0,15,0,0" Padding="5">
+            <GroupBox.Header>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Журнал событий" VerticalAlignment="Center" FontWeight="Bold"/>
+                    <Button Content="Очистить" 
+                            Command="{Binding ClearLogCommand}" 
+                            Margin="15,0,0,0" 
+                            Padding="8,2" 
+                            FontSize="10"
+                            Style="{StaticResource GhostButtonStyle}"/>
+                </StackPanel>
+            </GroupBox.Header>
+            <ListBox ItemsSource="{Binding Log.Lines}" BorderThickness="0" Background="#FDFDFD">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding}" FontSize="11" Margin="0,1"/>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
         </GroupBox>
     </Grid>
 </Window>

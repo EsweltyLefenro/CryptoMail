@@ -17,7 +17,7 @@ public sealed class SenderViewModel : BaseViewModel
 
     private string _selectedFilePath = string.Empty;
     private bool _isBusy;
-    private string _statusText = "Ready";
+    private string _statusText = "Готов";
 
     public SenderViewModel(
         KeyService keyService,
@@ -36,26 +36,22 @@ public sealed class SenderViewModel : BaseViewModel
         _storageService = storageService;
         _log = log;
 
-        var baseDir = AppContext.BaseDirectory;
-        KeyPaths = _keyService.GetDefaultKeyPaths(baseDir);
+        KeyPaths = _keyService.GetDefaultKeyPaths();
 
         ChooseFileCommand = new RelayCommand(_ => ChooseFile());
-        GenerateKeysCommand = new RelayCommand(_ => GenerateKeys());
         SendCommand = new RelayCommand(async _ => await SendAsync(), _ => !IsBusy);
+        GenerateKeysCommand = new RelayCommand(_ => GenerateAllKeys());
 
-        Subject = "CryptoMail Package";
+        Subject = "CryptoMail";
     }
 
     public RelayCommand ChooseFileCommand { get; }
-    public RelayCommand GenerateKeysCommand { get; }
     public RelayCommand SendCommand { get; }
+    public RelayCommand GenerateKeysCommand { get; }
 
     public EmailSettings Settings { get; } = new();
-
     public KeyPaths KeyPaths { get; }
-
     public string RecipientEmail { get; set; } = string.Empty;
-
     public string Subject { get; set; }
 
     public string SelectedFilePath
@@ -88,16 +84,19 @@ public sealed class SenderViewModel : BaseViewModel
         if (!string.IsNullOrWhiteSpace(path))
         {
             SelectedFilePath = path;
-            _log.Add($"Selected file: {path}");
+            _log.Add($"Выбран файл: {Path.GetFileName(path)}");
         }
     }
 
-    private void GenerateKeys()
+    private void GenerateAllKeys()
     {
-        _keyService.GenerateSenderKeys(KeyPaths);
-        _keyService.GenerateRecipientKeys(KeyPaths);
-        StatusText = "Keys generated.";
-        _log.Add("Sender and recipient keys generated in Keys/.");
+        try
+        {
+            _keyService.GenerateSenderKeys(KeyPaths);
+            _keyService.GenerateRecipientKeys(KeyPaths);
+            _log.Add("Все наборы ключей успешно пересозданы.");
+        }
+        catch (Exception ex) { _log.Add($"Ошибка генерации: {ex.Message}"); }
     }
 
     private async Task SendAsync()
@@ -105,15 +104,16 @@ public sealed class SenderViewModel : BaseViewModel
         try
         {
             IsBusy = true;
+            StatusText = "Отправка...";
 
             if (string.IsNullOrWhiteSpace(SelectedFilePath) || !File.Exists(SelectedFilePath))
             {
-                throw new FileNotFoundException("Select a valid file first.");
+                throw new FileNotFoundException("Сначала выберите файл.");
             }
 
             if (!_keyService.AllKeysExist(KeyPaths))
             {
-                throw new FileNotFoundException("Keys not found. Generate keys first.");
+                throw new FileNotFoundException("Ключи не найдены. Создайте их на вкладке 'КЛЮЧИ'.");
             }
 
             var senderPrivatePem = _keyService.LoadPem(KeyPaths.SenderPrivatePath);
@@ -121,30 +121,32 @@ public sealed class SenderViewModel : BaseViewModel
             var recipientPublicPem = _keyService.LoadPem(KeyPaths.RecipientPublicPath);
 
             var fileBytes = await File.ReadAllBytesAsync(SelectedFilePath);
+            
+            _log.Add("Подпись файла (RSA-PSS)...");
             var signature = _cryptoService.Sign(fileBytes, senderPrivatePem);
+            
             var meta = new PackageMeta
             {
                 FileName = Path.GetFileName(SelectedFilePath),
                 CreatedUtc = DateTime.UtcNow,
-                SenderEmail = Settings.FromAddress
+                SenderEmail = Settings.Login
             };
 
+            _log.Add("Упаковка и шифрование (AES-GCM)...");
             var zip = _packageService.BuildZip(fileBytes, signature, meta, senderPublicPem);
             var envelope = _cryptoService.Encrypt(zip, recipientPublicPem);
             var envelopeJson = JsonSerializer.Serialize(envelope);
 
-            var localPath = _storageService.SaveEnvelope(AppContext.BaseDirectory, envelope);
-            _log.Add($"Envelope saved locally: {localPath}");
-
+            Settings.FromAddress = Settings.Login;
             await _emailService.SendAsync(Settings, RecipientEmail, Subject, "envelope.json", envelopeJson);
 
-            StatusText = "Sent successfully.";
-            _log.Add("Email sent successfully.");
+            StatusText = "Успешно отправлено";
+            _log.Add("Письмо успешно отправлено.");
         }
         catch (Exception ex)
         {
-            StatusText = $"Error: {ex.Message}";
-            _log.Add(StatusText);
+            StatusText = "Ошибка отправки";
+            _log.Add($"Ошибка: {ex.Message}");
         }
         finally
         {

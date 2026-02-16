@@ -10,4 +10,9 @@ public partial class MainWindow : Window
         InitializeComponent();
         DataContext = new MainViewModel();
     }
+
+    private void SenderView_Loaded(object sender, RoutedEventArgs e)
+    {
+
+    }
 }

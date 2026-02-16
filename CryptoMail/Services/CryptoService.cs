@@ -9,14 +9,18 @@ public sealed class CryptoService
     {
         using var rsa = RSA.Create();
         rsa.ImportFromPem(senderPrivatePem);
-        return rsa.SignData(fileBytes, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
+        return rsa.SignData(fileBytes, HashAlgorithmName.SHA256, RSASignaturePadding.Pss);
     }
 
     public bool Verify(byte[] fileBytes, byte[] signatureBytes, string senderPublicPem)
     {
-        using var rsa = RSA.Create();
-        rsa.ImportFromPem(senderPublicPem);
-        return rsa.VerifyData(fileBytes, signatureBytes, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
+        try
+        {
+            using var rsa = RSA.Create();
+            rsa.ImportFromPem(senderPublicPem);
+            return rsa.VerifyData(fileBytes, signatureBytes, HashAlgorithmName.SHA256, RSASignaturePadding.Pss);
+        }
+        catch { return false; }
     }
 
     public Envelope Encrypt(byte[] zipBytes, string recipientPublicPem)

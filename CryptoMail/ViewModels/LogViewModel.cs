@@ -11,4 +11,9 @@ public sealed class LogViewModel
         var stamp = DateTime.Now.ToString("HH:mm:ss");
         Lines.Add($"[{stamp}] {message}");
     }
+
+    public void Clear()
+    {
+        Lines.Clear();
+    }
 }
