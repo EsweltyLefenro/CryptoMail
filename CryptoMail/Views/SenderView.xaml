@@ -4,37 +4,75 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d">
-    <ScrollViewer VerticalScrollBarVisibility="Auto">
-        <StackPanel Margin="12">
-            <TextBlock Text="Sender" FontSize="18" FontWeight="Bold" Margin="0 0 0 12"/>
+    <Grid Background="White">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="350"/>
+        </Grid.ColumnDefinitions>
 
-            <TextBlock Text="File path"/>
-            <DockPanel Margin="0 4 0 8">
-                <Button Content="Browse" Width="90" DockPanel.Dock="Right" Command="{Binding ChooseFileCommand}" Margin="8 0 0 0"/>
-                <TextBox Text="{Binding SelectedFilePath, UpdateSourceTrigger=PropertyChanged}"/>
-            </DockPanel>
+        <StackPanel Grid.Column="0" Margin="20">
+            <TextBlock Text="Параметры отправки" FontSize="18" FontWeight="Bold" Margin="0,0,0,20" Foreground="#2C3E50"/>
+            
+            <TextBlock Text="Email получателя:" Margin="0,0,0,5"/>
+            <TextBox Text="{Binding RecipientEmail, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,15" Padding="8"/>
 
-            <Button Content="Generate sender/recipient keys" Command="{Binding GenerateKeysCommand}" Margin="0 0 0 12"/>
+            <TextBlock Text="Тема письма:" Margin="0,0,0,5"/>
+            <TextBox Text="{Binding Subject, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,15" Padding="8"/>
 
-            <TextBlock Text="SMTP host"/>
-            <TextBox Text="{Binding Settings.SmtpHost, UpdateSourceTrigger=PropertyChanged}" Margin="0 4 0 8"/>
-            <TextBlock Text="SMTP port"/>
-            <TextBox Text="{Binding Settings.SmtpPort, UpdateSourceTrigger=PropertyChanged}" Margin="0 4 0 8"/>
-            <TextBlock Text="Login"/>
-            <TextBox Text="{Binding Settings.Login, UpdateSourceTrigger=PropertyChanged}" Margin="0 4 0 8"/>
-            <TextBlock Text="Password"/>
-            <PasswordBox x:Name="SenderPasswordBox" PasswordChanged="SenderPasswordBox_OnPasswordChanged" Margin="0 4 0 8"/>
-            <TextBlock Text="From"/>
-            <TextBox Text="{Binding Settings.FromAddress, UpdateSourceTrigger=PropertyChanged}" Margin="0 4 0 8"/>
-            <TextBlock Text="To"/>
-            <TextBox Text="{Binding RecipientEmail, UpdateSourceTrigger=PropertyChanged}" Margin="0 4 0 8"/>
-            <TextBlock Text="Subject"/>
-            <TextBox Text="{Binding Subject, UpdateSourceTrigger=PropertyChanged}" Margin="0 4 0 8"/>
+            <TextBlock Text="Файл для защиты:" Margin="0,0,0,5"/>
+            <Grid Margin="0,0,0,20">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBox Text="{Binding SelectedFilePath}" IsReadOnly="True" Padding="8" Background="#F9F9F9"/>
+                <Button Grid.Column="1" Content="Обзор..." Command="{Binding ChooseFileCommand}" Margin="10,0,0,0" Style="{StaticResource ModernButtonStyle}"/>
+            </Grid>
 
-            <Button Content="Send" Command="{Binding SendCommand}" Margin="0 8 0 8" Height="34"/>
-
-            <TextBlock Text="Status:" FontWeight="Bold"/>
-            <TextBlock Text="{Binding StatusText}" TextWrapping="Wrap"/>
+            <Button Content="ПОДПИСАТЬ, ЗАШИФРОВАТЬ И ОТПРАВИТЬ" 
+                    Command="{Binding SendCommand}" 
+                    Height="50" Style="{StaticResource ActionButtonStyle}"/>
+            
+            <TextBlock Text="{Binding StatusText}" HorizontalAlignment="Center" Margin="0,15,0,0" FontWeight="SemiBold" Foreground="#2980B9" FontSize="14"/>
         </StackPanel>
-    </ScrollViewer>
+
+        <Border Grid.Column="1" Background="#F8F9FA" BorderBrush="#E0E0E0" BorderThickness="1,0,0,0" Padding="20">
+            <StackPanel>
+                <TextBlock Text="Настройки почты (SMTP)" FontWeight="Bold" Margin="0,0,0,15" FontSize="14"/>
+                
+                <TextBlock Text="Ваш Email (Логин):" FontSize="11" Foreground="#7F8C8D"/>
+                <TextBox Text="{Binding Settings.Login, UpdateSourceTrigger=PropertyChanged}" Margin="0,2,0,10" Padding="5"/>
+
+                <TextBlock Text="Пароль приложения:" FontSize="11" Foreground="#7F8C8D"/>
+                <Grid Margin="0,2,0,10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <PasswordBox x:Name="SenderPasswordBox" Padding="5" PasswordChanged="SenderPasswordBox_OnPasswordChanged"/>
+                    <TextBox x:Name="SenderPasswordReveal" Padding="5" Visibility="Collapsed" Text="{Binding Settings.Password, UpdateSourceTrigger=PropertyChanged}"/>
+                    <Button Grid.Column="1" Content="👁" Width="30" Margin="5,0,0,0" 
+                            PreviewMouseDown="PasswordReveal_MouseDown" 
+                            PreviewMouseUp="PasswordReveal_MouseUp"
+                            Style="{StaticResource GhostButtonStyle}" Padding="0"/>
+                </Grid>
+
+                <UniformGrid Columns="2">
+                    <StackPanel Margin="0,0,5,0">
+                        <TextBlock Text="SMTP Хост:" FontSize="11" Foreground="#7F8C8D"/>
+                        <TextBox Text="{Binding Settings.SmtpHost}" Margin="0,2,0,10" Padding="5"/>
+                    </StackPanel>
+                    <StackPanel Margin="5,0,0,0">
+                        <TextBlock Text="Порт:" FontSize="11" Foreground="#7F8C8D"/>
+                        <TextBox Text="{Binding Settings.SmtpPort}" Margin="0,2,0,10" Padding="5"/>
+                    </StackPanel>
+                </UniformGrid>
+
+                <CheckBox Content="Использовать SSL" IsChecked="{Binding Settings.UseSsl}" Margin="0,5,0,5"/>
+                <CheckBox Content="Игнорировать ошибки SSL" IsChecked="{Binding Settings.IgnoreSslErrors}" Margin="0,0,0,15"/>
+
+                <TextBlock Text="* Ключи хранятся в AppData\Roaming\CryptoMail\Keys" FontSize="10" Foreground="#7F8C8D" Margin="0,10,0,0" TextWrapping="Wrap" FontStyle="Italic"/>
+            </StackPanel>
+        </Border>
+    </Grid>
 </UserControl>

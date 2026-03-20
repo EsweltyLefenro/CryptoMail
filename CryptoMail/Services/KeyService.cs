@@ -6,9 +6,10 @@ namespace CryptoMail.Services;
 
 public sealed class KeyService
 {
-    public KeyPaths GetDefaultKeyPaths(string appBaseDir)
+    public KeyPaths GetDefaultKeyPaths(string? appBaseDir = null)
     {
-        var keysDir = Path.Combine(appBaseDir, "Keys");
+        string appData = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "CryptoMail");
+        string keysDir = Path.Combine(appData, "Keys");
         Directory.CreateDirectory(keysDir);
 
         return new KeyPaths
@@ -43,5 +44,18 @@ public sealed class KeyService
         using var rsa = RSA.Create(3072);
         SavePem(privatePath, rsa.ExportRSAPrivateKeyPem());
         SavePem(publicPath, rsa.ExportRSAPublicKeyPem());
+    }
+
+    public string GetFingerprint(string pem)
+    {
+        try
+        {
+            using var rsa = RSA.Create();
+            rsa.ImportFromPem(pem);
+            var pubKey = rsa.ExportRSAPublicKey();
+            var hash = SHA256.HashData(pubKey);
+            return BitConverter.ToString(hash).Replace("-", ":").ToLower();
+        }
+        catch { return "неизвестно"; }
     }
 }
