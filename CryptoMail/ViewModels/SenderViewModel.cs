@@ -94,7 +94,9 @@ public sealed class SenderViewModel : BaseViewModel
         {
             _keyService.GenerateSenderKeys(KeyPaths);
             _keyService.GenerateRecipientKeys(KeyPaths);
-            _log.Add("Все наборы ключей успешно пересозданы.");
+            var senderPublicPem = _keyService.LoadPem(KeyPaths.SenderPublicPath);
+            File.WriteAllText(KeyPaths.TrustedSenderPublicPath, senderPublicPem);
+            _log.Add("Все наборы ключей успешно пересозданы. trusted_sender.pem обновлен автоматически.");
         }
         catch (Exception ex) { _log.Add($"Ошибка генерации: {ex.Message}"); }
     }
@@ -111,14 +113,14 @@ public sealed class SenderViewModel : BaseViewModel
                 throw new FileNotFoundException("Сначала выберите файл.");
             }
 
-            if (!_keyService.AllKeysExist(KeyPaths))
+            if (!_keyService.SenderKeysExist(KeyPaths))
             {
-                throw new FileNotFoundException("Ключи не найдены. Создайте их на вкладке 'КЛЮЧИ'.");
+                throw new FileNotFoundException("Ключи отправителя не найдены. Создайте их на вкладке 'КЛЮЧИ'.");
             }
 
             var senderPrivatePem = _keyService.LoadPem(KeyPaths.SenderPrivatePath);
             var senderPublicPem = _keyService.LoadPem(KeyPaths.SenderPublicPath);
-            var recipientPublicPem = _keyService.LoadPem(KeyPaths.RecipientPublicPath);
+            var (recipientPublicPem, recipientKeyDescription) = ResolveRecipientPublicKey();
 
             var fileBytes = await File.ReadAllBytesAsync(SelectedFilePath);
             
@@ -132,6 +134,7 @@ public sealed class SenderViewModel : BaseViewModel
                 SenderEmail = Settings.Login
             };
 
+            _log.Add($"Используется ключ получателя: {recipientKeyDescription}");
             _log.Add("Упаковка и шифрование (AES-GCM)...");
             var zip = _packageService.BuildZip(fileBytes, signature, meta, senderPublicPem);
             var envelope = _cryptoService.Encrypt(zip, recipientPublicPem);
@@ -152,5 +155,29 @@ public sealed class SenderViewModel : BaseViewModel
         {
             IsBusy = false;
         }
+    }
+
+    private (string Pem, string Description) ResolveRecipientPublicKey()
+    {
+        if (string.IsNullOrWhiteSpace(RecipientEmail))
+            throw new ArgumentException("Email получателя обязателен.");
+
+        bool isSelfSend = !string.IsNullOrWhiteSpace(Settings.Login) &&
+                          RecipientEmail.Equals(Settings.Login, StringComparison.OrdinalIgnoreCase);
+
+        if (isSelfSend)
+        {
+            if (!_keyService.PublicKeyExists(KeyPaths.RecipientPublicPath))
+                throw new FileNotFoundException("Локальный ключ получателя не найден. Создайте его на вкладке 'КЛЮЧИ'.");
+
+            return (_keyService.LoadPem(KeyPaths.RecipientPublicPath), "локальный recipient_public.pem (отправка самому себе)");
+        }
+
+        if (_keyService.PublicKeyExists(KeyPaths.PartnerRecipientPublicPath))
+        {
+            return (_keyService.LoadPem(KeyPaths.PartnerRecipientPublicPath), "загруженный ключ другого получателя");
+        }
+
+        throw new FileNotFoundException("Для отправки другому человеку сначала добавьте его recipient_public.pem на вкладке 'КЛЮЧИ'.");
     }
 }

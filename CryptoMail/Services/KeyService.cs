@@ -10,14 +10,20 @@ public sealed class KeyService
     {
         string appData = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "CryptoMail");
         string keysDir = Path.Combine(appData, "Keys");
+        string recipientsDir = Path.Combine(appData, "Recipients");
+        string trustedSendersDir = Path.Combine(appData, "TrustedSenders");
         Directory.CreateDirectory(keysDir);
+        Directory.CreateDirectory(recipientsDir);
+        Directory.CreateDirectory(trustedSendersDir);
 
         return new KeyPaths
         {
             SenderPrivatePath = Path.Combine(keysDir, "sender_private.pem"),
             SenderPublicPath = Path.Combine(keysDir, "sender_public.pem"),
             RecipientPrivatePath = Path.Combine(keysDir, "recipient_private.pem"),
-            RecipientPublicPath = Path.Combine(keysDir, "recipient_public.pem")
+            RecipientPublicPath = Path.Combine(keysDir, "recipient_public.pem"),
+            PartnerRecipientPublicPath = Path.Combine(recipientsDir, "partner_recipient_public.pem"),
+            TrustedSenderPublicPath = Path.Combine(trustedSendersDir, "trusted_sender.pem")
         };
     }
 
@@ -39,6 +45,16 @@ public sealed class KeyService
         File.Exists(keyPaths.RecipientPrivatePath) &&
         File.Exists(keyPaths.RecipientPublicPath);
 
+    public bool SenderKeysExist(KeyPaths keyPaths) =>
+        File.Exists(keyPaths.SenderPrivatePath) &&
+        File.Exists(keyPaths.SenderPublicPath);
+
+    public bool RecipientPrivateKeyExists(KeyPaths keyPaths)
+        => File.Exists(keyPaths.RecipientPrivatePath);
+
+    public bool PublicKeyExists(string path)
+        => File.Exists(path);
+
     private void GeneratePair(string privatePath, string publicPath)
     {
         using var rsa = RSA.Create(3072);
@@ -57,5 +73,20 @@ public sealed class KeyService
             return BitConverter.ToString(hash).Replace("-", ":").ToLower();
         }
         catch { return "неизвестно"; }
+    }
+
+    public bool IsValidPublicKey(string pem)
+    {
+        try
+        {
+            using var rsa = RSA.Create();
+            rsa.ImportFromPem(pem);
+            _ = rsa.ExportRSAPublicKey();
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
     }
 }

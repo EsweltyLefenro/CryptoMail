@@ -68,9 +68,14 @@
                     </StackPanel>
                 </UniformGrid>
 
-                <CheckBox Content="Использовать SSL" IsChecked="{Binding Settings.UseSsl}" Margin="0,5,0,5"/>
-                <CheckBox Content="Игнорировать ошибки SSL" IsChecked="{Binding Settings.IgnoreSslErrors}" Margin="0,0,0,15"/>
+                <Border Background="#EEF7FF" BorderBrush="#C7DCEF" BorderThickness="1" CornerRadius="4" Padding="10" Margin="0,4,0,15">
+                    <TextBlock Text="Безопасное SMTP-подключение включено автоматически. Для порта 465 используется SSL, для других защищенных портов — STARTTLS." 
+                               FontSize="11"
+                               Foreground="#4A6572"
+                               TextWrapping="Wrap"/>
+                </Border>
 
+                <TextBlock Text="Если отправляете другому человеку, сначала загрузите его recipient_public.pem на вкладке 'КЛЮЧИ'." FontSize="10" Foreground="#7F8C8D" Margin="0,0,0,8" TextWrapping="Wrap" FontStyle="Italic"/>
                 <TextBlock Text="* Ключи хранятся в AppData\Roaming\CryptoMail\Keys" FontSize="10" Foreground="#7F8C8D" Margin="0,10,0,0" TextWrapping="Wrap" FontStyle="Italic"/>
             </StackPanel>
         </Border>
