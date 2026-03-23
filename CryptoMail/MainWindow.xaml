@@ -6,7 +6,7 @@
         xmlns:vm="clr-namespace:CryptoMail.ViewModels"
         xmlns:views="clr-namespace:CryptoMail.Views"
         mc:Ignorable="d"
-        Title="CryptoMail" Height="750" Width="1100"
+        Title="CryptoMail" Height="760" Width="1100"
         Background="#F5F6F7" FontFamily="Segoe UI">
     
     <Window.DataContext>
@@ -16,7 +16,7 @@
     <Grid Margin="15">
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
-            <RowDefinition Height="220"/>
+            <RowDefinition Height="170"/>
         </Grid.RowDefinitions>
 
         <TabControl Grid.Row="0" BorderThickness="0" Background="Transparent">
